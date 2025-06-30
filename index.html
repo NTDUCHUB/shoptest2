@@ -1,0 +1,2151 @@
+<html class="scroll-smooth" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Shop with Dark/Light Mode Toggle and Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Loading Overlay Styles */
+      #loading-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: #000000cc;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+      }
+
+      .square {
+        width: 8px;
+        height: 30px;
+        background: rgb(71, 195, 248);
+        border-radius: 10px;
+        display: block;
+        -webkit-animation: turn 2.5s ease infinite;
+        animation: turn 2.5s ease infinite;
+        box-shadow: rgb(71, 195, 248) 0px 1px 15px 0px;
+      }
+
+      .top {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(90deg);
+      }
+
+      .bottom {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(-90deg);
+      }
+
+      .left {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .right {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(-180deg);
+      }
+
+      @-webkit-keyframes turn {
+        0% {
+          transform: translateX(0) translateY(0) rotate(0);
+        }
+
+        50% {
+          transform: translateX(400%) translateY(100%) rotate(90deg);
+        }
+
+        100% {
+          transform: translateX(0) translateY(0) rotate(0);
+        }
+      }
+
+      @keyframes turn {
+        0% {
+          transform: translateX(0) translateY(0) rotate(0);
+        }
+
+        70% {
+          transform: translateX(400%) translateY(100%) rotate(90deg);
+        }
+
+        100% {
+          transform: translateX(0) translateY(0) rotate(0);
+        }
+      }
+
+      /* Existing styles below */
+      .switch {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        z-index: 50;
+        cursor: pointer;
+      }
+      .switch #input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: relative;
+        cursor: pointer;
+        background-color: #2196f3;
+        border-radius: 34px;
+        height: 100%;
+        transition: background-color 0.4s;
+        overflow: hidden;
+      }
+      .slider.round {
+        border-radius: 34px;
+      }
+      .sun-moon {
+        position: absolute;
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: yellow;
+        border-radius: 50%;
+        transition: transform 0.4s, background-color 0.4s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #input:checked + .slider {
+        background-color: #1e293b;
+      }
+      #input:focus + .slider {
+        box-shadow: 0 0 1px #2196f3;
+      }
+      #input:checked + .slider .sun-moon {
+        transform: translateX(26px);
+        background-color: white;
+        animation: rotate-center 0.6s ease-in-out both;
+      }
+      .moon-dot {
+        opacity: 0;
+        transition: opacity 0.4s;
+        fill: gray;
+        position: absolute;
+        z-index: 4;
+      }
+      #input:checked + .slider .sun-moon .moon-dot {
+        opacity: 1;
+      }
+      #moon-dot-1 {
+        left: 10px;
+        top: 3px;
+        width: 6px;
+        height: 6px;
+      }
+      #moon-dot-2 {
+        left: 2px;
+        top: 10px;
+        width: 10px;
+        height: 10px;
+      }
+      #moon-dot-3 {
+        left: 16px;
+        top: 18px;
+        width: 3px;
+        height: 3px;
+      }
+      #light-ray-1,
+      #light-ray-2,
+      #light-ray-3 {
+        position: absolute;
+        fill: white;
+        opacity: 0.1;
+        z-index: -1;
+      }
+      #light-ray-1 {
+        left: -8px;
+        top: -8px;
+        width: 43px;
+        height: 43px;
+      }
+      #light-ray-2 {
+        left: -50%;
+        top: -50%;
+        width: 55px;
+        height: 55px;
+      }
+      #light-ray-3 {
+        left: -18px;
+        top: -18px;
+        width: 60px;
+        height: 60px;
+      }
+      .cloud-light,
+      .cloud-dark {
+        position: absolute;
+        animation-name: cloud-move;
+        animation-duration: 6s;
+        animation-iteration-count: infinite;
+      }
+      .cloud-light {
+        fill: #eee;
+      }
+      .cloud-dark {
+        fill: #ccc;
+        animation-delay: 1s;
+      }
+      #cloud-1 {
+        left: 30px;
+        top: 15px;
+        width: 40px;
+      }
+      #cloud-2 {
+        left: 44px;
+        top: 10px;
+        width: 20px;
+      }
+      #cloud-3 {
+        left: 18px;
+        top: 24px;
+        width: 30px;
+      }
+      #cloud-4 {
+        left: 36px;
+        top: 18px;
+        width: 40px;
+      }
+      #cloud-5 {
+        left: 48px;
+        top: 14px;
+        width: 20px;
+      }
+      #cloud-6 {
+        left: 22px;
+        top: 26px;
+        width: 30px;
+      }
+      @keyframes cloud-move {
+        0% {
+          transform: translateX(0px);
+        }
+        40% {
+          transform: translateX(4px);
+        }
+        80% {
+          transform: translateX(-4px);
+        }
+        100% {
+          transform: translateX(0px);
+        }
+      }
+      .stars {
+        transform: translateY(-32px);
+        opacity: 0;
+        transition: 0.4s;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .star {
+        fill: white;
+        position: absolute;
+        transition: 0.4s;
+        animation-name: star-twinkle;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+      }
+      #input:checked + .slider .stars {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      #star-1 {
+        width: 20px;
+        top: 2px;
+        left: 3px;
+        animation-delay: 0.3s;
+      }
+      #star-2 {
+        width: 6px;
+        top: 16px;
+        left: 3px;
+      }
+      #star-3 {
+        width: 12px;
+        top: 20px;
+        left: 10px;
+        animation-delay: 0.6s;
+      }
+      #star-4 {
+        width: 18px;
+        top: 0px;
+        left: 18px;
+        animation-delay: 1.3s;
+      }
+      @keyframes star-twinkle {
+        0% {
+          transform: scale(1);
+        }
+        40% {
+          transform: scale(1.2);
+        }
+        80% {
+          transform: scale(0.8);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes rotate-center {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      footer {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: #4b5563;
+        background: linear-gradient(90deg, #4f46e5, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 5px rgba(79, 70, 229, 0.7);
+        padding: 1rem 0;
+        width: 100%;
+        text-align: center;
+        user-select: none;
+        animation: rainbow-text 7s linear infinite;
+        white-space: nowrap;
+        overflow: hidden;
+        position: relative;
+      }
+      body.dark footer {
+        color: #a5b4fc;
+        text-shadow: 0 0 8px rgba(165, 180, 252, 0.9);
+        -webkit-text-fill-color: transparent;
+      }
+      /* Rainbow color animation */
+      @keyframes rainbow-text {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      footer {
+        background: linear-gradient(
+          270deg,
+          #ff0000,
+          #ff7f00,
+          #ffff00,
+          #00ff00,
+          #0000ff,
+          #4b0082,
+          #8f00ff,
+          #ff0000
+        );
+        background-size: 1400% 1400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: rainbow-text 7s linear infinite;
+      }
+      /* Blinking caret effect */
+      footer::after {
+        content: "";
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background-color: currentColor;
+        margin-left: 4px;
+        animation: blink-caret 1s step-start infinite;
+        vertical-align: bottom;
+      }
+      @keyframes blink-caret {
+        0%, 50% {
+          opacity: 1;
+        }
+        50.01%, 100% {
+          opacity: 0;
+        }
+      }
+
+      /* From Uiverse.io by Juanes200122 */
+      #svg_svg {
+        zoom: 0.3;
+        position: fixed;
+        top: 0.5rem;
+        left: 0.5rem;
+        z-index: 60;
+        pointer-events: none;
+        user-select: none;
+      }
+      .estrobo_animation {
+        animation: floatAndBounce 4s infinite ease-in-out, strobe 0.8s infinite;
+      }
+
+      .estrobo_animationV2 {
+        animation: floatAndBounce 4s infinite ease-in-out, strobev2 0.8s infinite;
+      }
+
+      #float_server {
+        animation: floatAndBounce 4s infinite ease-in-out;
+      }
+
+      @keyframes floatAndBounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      @keyframes strobe {
+        0%,
+        50%,
+        100% {
+          fill: #17e300;
+        }
+
+        25%,
+        75% {
+          fill: #17e300b4;
+        }
+      }
+
+      @keyframes strobev2 {
+        0%,
+        50%,
+        100% {
+          fill: rgb(255, 95, 74);
+        }
+
+        25%,
+        75% {
+          fill: rgb(16, 53, 115);
+        }
+      }
+
+      /* Animación de los colores del gradiente */
+      @keyframes animateGradient {
+        0% {
+          stop-color: #313f8773;
+        }
+
+        50% {
+          stop-color: #040d3a;
+        }
+
+        100% {
+          stop-color: #313f8773;
+        }
+      }
+
+      /* Animación aplicada a los puntos del gradiente */
+      #paint13_linear_163_1030 stop {
+        animation: animateGradient 4s infinite alternate;
+      }
+
+      /* Terminal Card Styles for Status Section */
+      .card {
+        padding: 0.75rem;
+        overflow: hidden;
+        border-radius: 20px;
+        background-color: navy;
+        backdrop-filter: blur(800px);
+        min-width: 344px;
+        max-width: 100%;
+        margin: auto;
+        position: relative;
+        cursor: default;
+        color: white;
+        font-weight: 900;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      .card:before,
+      .card:after {
+        content: "";
+        position: absolute;
+        left: -2px;
+        top: -2px;
+        border-radius: 20px;
+        background: linear-gradient(
+          45deg,
+          #fb0094,
+          #0000ff,
+          #00ff00,
+          #ffff00,
+          #ff0000,
+          #fb0094,
+          #0000ff,
+          #00ff00,
+          #ffff00,
+          #ff0000
+        );
+        background-size: 400%;
+        width: calc(100% + 4px);
+        height: calc(100% + 4px);
+        z-index: -1;
+        animation: steam 20s linear infinite;
+      }
+      .card:after {
+        filter: blur(40px);
+      }
+      @keyframes steam {
+        0% {
+          background-position: 0 0;
+        }
+        50% {
+          background-position: 400% 0;
+        }
+        100% {
+          background-position: 0 0;
+        }
+      }
+      .wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: relative;
+        z-index: 10;
+        border: 0.5px solid #525252;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: navy;
+        backdrop-filter: blur(800px);
+        box-shadow: inset 0 0 10px #00000088;
+      }
+      .terminal {
+        display: flex;
+        flex-direction: column;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+        min-height: 40px;
+        padding-inline: 12px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        background-color: #202425;
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 2.5rem;
+        user-select: none;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #8e8e8e;
+      }
+      .title > svg {
+        height: 18px;
+        width: 18px;
+        margin-top: 2px;
+        color: #006adc;
+      }
+      .copy_toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem;
+        border: 0.65px solid darkgrey;
+        margin-left: auto;
+        border-radius: 6px;
+        background-color: #202425;
+        color: #8e8e8e;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        position: relative;
+        user-select: none;
+      }
+      .copy_toggle:hover,
+      .copy_toggle:focus {
+        background-color: #2a2f33;
+        outline: none;
+      }
+      .copy_toggle > svg {
+        width: 15px;
+        height: 15px;
+        animation: bounce 2s infinite;
+      }
+      .copy_toggle:active > svg > path,
+      .copy_toggle:focus-within > svg > path {
+        animation: clipboard-check 5000ms linear forwards;
+      }
+      .body {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        border-bottom-right-radius: 15px;
+        border-bottom-left-radius: 15px;
+        overflow-x: auto;
+        padding: 1rem;
+        line-height: 20px;
+        color: white;
+        background-color: black;
+        white-space: nowrap;
+        font-size: 16px;
+      }
+      .pre {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-wrap: nowrap;
+        white-space: pre;
+        overflow: hidden;
+        box-sizing: border-box;
+        font-size: 16px;
+        margin: 0;
+      }
+      .pre code:nth-child(1) {
+        color: #575757;
+      }
+      .pre code:nth-child(2) {
+        color: #e34ba9;
+      }
+      .cmd {
+        height: 19px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 0.15em solid #e34ba9;
+        animation: typingDelete 6s steps(30, end) infinite;
+        max-width: 100%;
+        font-size: 14px;
+        font-weight: 900;
+        background: linear-gradient(
+          270deg,
+          #ff0000,
+          #ff7f00,
+          #ffff00,
+          #00ff00,
+          #0000ff,
+          #4b0082,
+          #8f00ff,
+          #ff0000
+        );
+        background-size: 1400% 1400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation:
+          rainbow 8s ease infinite,
+          typingDelete 6s steps(30, end) infinite,
+          blinkText 0.4s ease-in-out infinite;
+      }
+      @keyframes typingDelete {
+        0% {
+          width: 0;
+        }
+        45% {
+          width: 100%;
+        }
+        55% {
+          width: 100%;
+        }
+        100% {
+          width: 0;
+        }
+      }
+      @keyframes rainbow {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      @keyframes blinkText {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+      @keyframes blink-caret {
+        0%, 100% {
+          border-color: transparent;
+        }
+        50% {
+          border-color: #e34ba9;
+        }
+      }
+      @keyframes clipboard-check {
+        100% {
+          color: deepskyblue;
+          d: path(
+            "M 9 5 H 7 a 2 2 0 0 0 -2 2 v 12 a 2 2 0 0 0 2 2 h 10 a 2 2 0 0 0 2 -2 V 7 a 2 2 0 0 0 -2 -2 h -2 M 9 5 a 2 2 0 0 0 2 2 h 2 a 2 2 0 0 0 2 -2 M 9 5 a 2 2 0 0 1 2 -2 h 2 a 2 2 0 0 1 2 2 m -6 9 l 2 2 l 4 -4"
+          );
+        }
+      }
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-3px);
+        }
+      }
+      /* Responsive adjustments */
+      @media (max-width: 400px) {
+        .card {
+          min-width: auto;
+          padding: 0.5rem;
+        }
+        .pre {
+          font-size: 14px;
+        }
+        .head {
+          min-height: 36px;
+          padding-inline: 8px;
+        }
+        .title {
+          height: 2rem;
+          font-size: 14px;
+        }
+        .copy_toggle {
+          padding: 0.2rem;
+        }
+        .copy_toggle > svg {
+          width: 13px;
+          height: 13px;
+        }
+      }
+
+      /* New styles for horizontal status container */
+      .head-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+      }
+
+      /* Terminal loader styles */
+      @keyframes blinkCursor {
+        50% {
+          border-right-color: transparent;
+        }
+      }
+
+      @keyframes typeAndDelete {
+        0%,
+        10% {
+          width: 0;
+        }
+        45%,
+        55% {
+          width: 6.2em;
+        } /* adjust width based on content */
+        90%,
+        100% {
+          width: 0;
+        }
+      }
+
+      .terminal-loader {
+        border: 0.1em solid #333;
+        background-color: #1a1a1a;
+        color: #0f0;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.85em;
+        padding: 1.2em 0.8em;
+        width: 12em;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+        user-select: none;
+        flex-shrink: 0;
+      }
+
+      .terminal-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1.3em;
+        background-color: #333;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        padding: 0 0.3em;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75em;
+        color: #eee;
+        font-weight: 600;
+      }
+
+      .terminal-title {
+        line-height: 1.3em;
+      }
+
+      .terminal-controls {
+        display: flex;
+        gap: 0.3em;
+      }
+
+      .control {
+        width: 0.5em;
+        height: 0.5em;
+        border-radius: 50%;
+        background-color: #777;
+        flex-shrink: 0;
+      }
+
+      .control.close {
+        background-color: #e33;
+      }
+
+      .control.minimize {
+        background-color: #ee0;
+      }
+
+      .control.maximize {
+        background-color: #0b0;
+      }
+
+      .text {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 0.15em solid green; /* Cursor */
+        animation:
+          typeAndDelete 6s steps(22) infinite,
+          blinkCursor 0.5s step-end infinite alternate;
+        margin-top: 1.3em;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.85em;
+        user-select: none;
+        max-width: 100%;
+        box-sizing: content-box;
+      }
+
+      /* Character swing styles */
+      #container {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        height: 100vh;
+        width: 150px;
+        pointer-events: auto;
+        z-index: 9999;
+      }
+
+      #rope {
+        position: absolute;
+        width: 3px;
+        background: linear-gradient(to bottom, #000000, #333333);
+        z-index: 1;
+        left: 50%;
+        transform: translateX(-1.5px);
+        top: 0;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        height: 450px;
+        will-change: transform, height, top, left;
+      }
+
+      #character {
+        position: absolute;
+        cursor: grab;
+        transform-origin: top center;
+        z-index: 2;
+        width: 150px;
+        height: auto;
+        top: 450px; /* rope length */
+        left: 50%;
+        transform: translate(-50%, 0) rotate(0deg);
+        filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.3));
+        transition: transform 0.1s ease-out;
+        will-change: transform;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body class="bg-white text-black transition-colors duration-500 min-h-screen flex flex-col">
+    <!-- Inserted SVG in top-left corner -->
+    <!-- From Uiverse.io by Juanes200122 -->
+    <svg
+      fill="none"
+      height="578"
+      id="svg_svg"
+      viewBox="0 0 477 578"
+      width="477"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <!-- SVG content omitted for brevity -->
+    </svg>
+    <!-- Loading Overlay -->
+    <div aria-busy="true" aria-live="assertive" id="loading-overlay" role="alert">
+      <div aria-hidden="true" class="container">
+        <div class="top">
+          <div class="square">
+            <div class="square">
+              <div class="square">
+                <div class="square">
+                  <div class="square">
+                    <div class="square"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="square">
+            <div class="square">
+              <div class="square">
+                <div class="square">
+                  <div class="square">
+                    <div class="square"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="left">
+          <div class="square">
+            <div class="square">
+              <div class="square">
+                <div class="square">
+                  <div class="square">
+                    <div class="square"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="square">
+            <div class="square">
+              <div class="square">
+                <div class="square">
+                  <div class="square">
+                    <div class="square"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Dark/Light Mode Toggle -->
+    <label aria-label="Toggle dark mode" class="switch">
+      <input checked="" id="input" type="checkbox" />
+      <div class="slider round">
+        <div aria-hidden="true" class="sun-moon">
+          <svg
+            aria-hidden="true"
+            class="moon-dot"
+            focusable="false"
+            id="moon-dot-1"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="moon-dot"
+            focusable="false"
+            id="moon-dot-2"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="moon-dot"
+            focusable="false"
+            id="moon-dot-3"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="light-ray"
+            focusable="false"
+            id="light-ray-1"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="light-ray"
+            focusable="false"
+            id="light-ray-2"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="light-ray"
+            focusable="false"
+            id="light-ray-3"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-dark"
+            focusable="false"
+            id="cloud-1"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-dark"
+            focusable="false"
+            id="cloud-2"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-dark"
+            focusable="false"
+            id="cloud-3"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-light"
+            focusable="false"
+            id="cloud-4"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-light"
+            focusable="false"
+            id="cloud-5"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="cloud-light"
+            focusable="false"
+            id="cloud-6"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="50"></circle>
+          </svg>
+        </div>
+        <div aria-hidden="true" class="stars">
+          <svg
+            aria-hidden="true"
+            class="star"
+            focusable="false"
+            id="star-1"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
+            ></path>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="star"
+            focusable="false"
+            id="star-2"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
+            ></path>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="star"
+            focusable="false"
+            id="star-3"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
+            ></path>
+          </svg>
+          <svg
+            aria-hidden="true"
+            class="star"
+            focusable="false"
+            id="star-4"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+    </label>
+    <!-- Shop Cards -->
+    <main
+      class="flex-grow max-w-full flex flex-wrap gap-6 justify-center mt-20 px-4"
+    >
+      <div class="flex flex-wrap justify-center gap-6 w-full max-w-[960px] mb-6">
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with electric aura and glowing fists in a dynamic pose with colorful background"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/kGJEeU8.jpeg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-1"
+          >
+            MS: 1
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="flex flex-col gap-3">
+              <div
+                class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>
+                sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+              </div>
+              <div
+                class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng
+                nhập lần đầu
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with fiery red hair and intense gaze in a battle stance with flames in background"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/7VVPbIU.png"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-1"
+          >
+            MS: 2
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with blue glowing sword and futuristic armor in a dark cityscape"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/0wbzf1W.jpeg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 3
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with white hair and mystical aura surrounded by floating runes"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/xrmk2nD.jpeg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 4
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with green hair and nature magic surrounded by glowing plants"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/yjYkjuR.jpeg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 5
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with robotic arm and cybernetic enhancements in futuristic city"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://i.imgur.com/DC6akxd.jpeg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-1"
+          >
+            MS: 6
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>25.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 7 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with silver hair and ice magic surrounded by frozen shards"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/dfb4ebc7-ebd8-4dfe-1e08-4c0799769d5f.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 7
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 8 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with dark armor and glowing red eyes in a fiery battlefield"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/76ee01d6-13d1-4273-9cd5-bf71abe1d511.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 8
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 9 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with golden sword and shining armor in a bright battlefield"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/f19a60b2-4316-4bb4-ea14-79e6448fc6dd.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 9
+          </div>
+          <div class="p-3 space-y-3">
+            <div
+              class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div
+              class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+            >
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 10 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with purple hair and magical staff casting spells"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/d916cef9-5205-46df-bb27-6f9f9acba36c.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 10
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 11 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with black cloak and mysterious glowing eyes in dark forest"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/edd22bd8-7f50-4717-86fd-f37fec4de627.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 11
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 12 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with fiery orange hair and blazing sword in battle"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/8cca4990-7e17-443e-8537-e78631f6f16a.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 12
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>
+              sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+            </div>
+            <div class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2">
+              <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập
+              lần đầu
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>28.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 13 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with fiery blue hair and lightning magic in a stormy background"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/2e85350b-39ed-46ad-32e1-3d7bc0951fc4.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 13
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="flex flex-col gap-3">
+              <div
+                class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>
+                sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+              </div>
+              <div
+                class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập lần đầu
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>30.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 14 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with golden armor and radiant light in a heroic pose"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/b3aa961d-3807-4531-84d3-57823109932e.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 14
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="flex flex-col gap-3">
+              <div
+                class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>
+                sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+              </div>
+              <div
+                class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập lần đầu
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>30.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- MS 15 -->
+        <div
+          class="w-[280px] border border-[#e31c3d] rounded-lg overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-500"
+        >
+          <img
+            alt="Anime character with shadowy figure and glowing purple eyes in a dark misty environment"
+            class="w-full h-[140px] object-cover"
+            height="140"
+            src="https://storage.googleapis.com/a1aa/image/bc5f9384-38d6-484d-b263-a04875b804e7.jpg"
+            width="280"
+          />
+          <div
+            class="absolute top-3 right-3 bg-[#e31c3d] text-white text-xs font-semibold rounded px-3 py-2"
+          >
+            MS: 15
+          </div>
+          <div class="p-3 space-y-3">
+            <div class="flex flex-col gap-3">
+              <div
+                class="bg-[#c3003b] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>
+                sau khi mua chỉ cần đăng nhập vào và kích hoạt lại tài khoản!
+              </div>
+              <div
+                class="bg-[#4b0082] text-white text-xs font-semibold rounded px-3 py-2 leading-tight flex items-center gap-2"
+              >
+                <i class="fas fa-check-circle text-[14px]"></i>Chỉ bảo hành đăng nhập lần đầu
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="flex items-center gap-2 bg-[#ed1c24] text-white text-sm font-semibold rounded px-5 py-2 w-[120px] justify-center detail-btn"
+                data-content="Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé"
+              >
+                <i class="fas fa-shopping-cart"></i>Chi Tiết
+              </button>
+              <button
+                class="flex items-center gap-2 border border-[#d9d9d9] rounded px-4 py-2 text-sm text-[#333333] font-normal w-[120px] justify-center dark:text-gray-200 dark:border-gray-600"
+              >
+                <i class="fas fa-credit-card"></i>30.000 ₫
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Terminal Status Card inserted near the bottom -->
+    <div class="max-w-[360px] w-full mx-auto mb-8 px-4">
+      <div class="card" role="region" aria-label="Terminal command card">
+        <div class="wrap">
+          <div class="terminal">
+            <div
+              class="head head-container"
+              aria-label="Terminal status and loader"
+            >
+              <hgroup
+                class="head flex-1 flex items-center gap-2 p-0 m-0"
+                style="min-width:0;"
+              >
+                <p
+                  class="title"
+                  aria-label="Terminal status"
+                  style="white-space: nowrap;"
+                >
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    height="16px"
+                    width="16px"
+                    focusable="false"
+                  >
+                    <path
+                      d="M7 15L10 12L7 9M13 15H17M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z"
+                    ></path>
+                  </svg>
+                  Status
+                </p>
+
+                <button
+                  type="button"
+                  tabindex="0"
+                  class="copy_toggle"
+                  aria-label="Copy command to clipboard"
+                  title="Copy command to clipboard"
+                  id="copyBtn"
+                >
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    height="16px"
+                    width="16px"
+                    focusable="false"
+                  >
+                    <path
+                      d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2"
+                    ></path>
+                    <path
+                      d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"
+                    ></path>
+                  </svg>
+                </button>
+              </hgroup>
+
+              <div class="terminal-loader" aria-label="Loading status">
+                <div class="terminal-header">
+                  <div class="terminal-title">Status</div>
+                  <div class="terminal-controls" aria-hidden="true">
+                    <div class="control close"></div>
+                    <div class="control minimize"></div>
+                    <div class="control maximize"></div>
+                  </div>
+                </div>
+                <div class="text" aria-live="polite" aria-atomic="true">
+                  Mua Acc Đi Các Ní Ủng Hộ NgĐức Nhé
+                </div>
+              </div>
+            </div>
+
+            <div class="body" tabindex="0" aria-label="Terminal command output">
+              <pre class="pre" aria-live="polite" aria-atomic="true">
+                <code>-&nbsp;</code>
+                <code>CMD&nbsp;</code>
+                <code class="cmd" id="cmdText">
+                  Mua Acc Đi Các Ní Ủng Hộ NgĐức Nhé !
+                </code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div
+      aria-describedby="modalDesc"
+      aria-labelledby="modalTitle"
+      aria-modal="true"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+      id="modal"
+      role="dialog"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center relative mx-4"
+      >
+        <button
+          aria-label="Close modal"
+          class="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-xl font-bold"
+          id="closeModal"
+        >
+          ×
+        </button>
+        <h2
+          class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100"
+          id="modalTitle"
+        >
+          Nội Dung
+        </h2>
+        <p class="text-gray-700 dark:text-gray-300" id="modalContent">
+          Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé
+        </p>
+      </div>
+    </div>
+    <!-- Character Swing Container -->
+    <div id="container" aria-label="Swinging character on rope" role="img">
+      <div id="rope"></div>
+      <img
+        id="character"
+        src="https://i.imgur.com/PRPqsai.png"
+        alt="Animated swinging character with silver hair and blue outfit hanging from a rope"
+        draggable="false"
+      />
+    </div>
+    <!-- Footer -->
+    <footer>© DevNgĐứcHub</footer>
+    <!-- Background Music -->
+    <audio id="bgMusic" hidden loop>
+      <source src="https://files.catbox.moe/f8pfd9.mp4" type="audio/mp4" />
+      Your browser does not support the audio element.
+    </audio>
+    <script>
+      // Play audio on first user interaction (click anywhere on page)
+      document.addEventListener(
+        "click",
+        function () {
+          const bgMusic = document.getElementById("bgMusic");
+          if (bgMusic) {
+            bgMusic
+              .play()
+              .catch((e) => console.log("Auto-play was prevented:", e));
+            // Remove event after playing
+            document.removeEventListener("click", arguments.callee);
+          }
+        },
+        { once: true }
+      );
+
+      // Loading overlay logic
+      const loadingOverlay = document.getElementById("loading-overlay");
+      const loadingKey = "loadingShown";
+
+      function hideLoading() {
+        if (loadingOverlay) {
+          loadingOverlay.style.display = "none";
+        }
+      }
+
+      window.addEventListener("load", () => {
+        if (!localStorage.getItem(loadingKey)) {
+          // Show loading overlay for 2.5s (animation duration)
+          setTimeout(() => {
+            hideLoading();
+            localStorage.setItem(loadingKey, "true");
+          }, 2500);
+        } else {
+          hideLoading();
+        }
+      });
+
+      // Dark/Light mode toggle logic
+      const toggle = document.getElementById("input");
+      const html = document.documentElement;
+      function applyTheme(checked) {
+        if (checked) {
+          html.classList.add("dark");
+          document.body.classList.add("bg-black", "text-white");
+          document.body.classList.remove("bg-white", "text-black");
+        } else {
+          html.classList.remove("dark");
+          document.body.classList.remove("bg-black", "text-white");
+          document.body.classList.add("bg-white", "text-black");
+        }
+      }
+      applyTheme(toggle.checked);
+      toggle.addEventListener("change", () => {
+        applyTheme(toggle.checked);
+      });
+
+      // Modal logic
+      const modal = document.getElementById("modal");
+      const modalContent = document.getElementById("modalContent");
+      const closeModalBtn = document.getElementById("closeModal");
+
+      function attachDetailListeners() {
+        const detailButtons = document.querySelectorAll(".detail-btn");
+        detailButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const content =
+              button.getAttribute("data-content") ||
+              "Nội Dung : Liên Hệ Trực Tiếp Qua Zalo Hoặc Fb Của Ng Đức Nhé";
+            modalContent.textContent = content;
+            modal.classList.remove("hidden");
+            modal.focus();
+          });
+        });
+      }
+
+      closeModalBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+        }
+      });
+
+      window.addEventListener("load", () => {
+        attachDetailListeners();
+      });
+
+      // Accessibility: trap focus inside modal when open
+      document.addEventListener("keydown", (e) => {
+        if (!modal.classList.contains("hidden")) {
+          if (e.key === "Escape") {
+            modal.classList.add("hidden");
+          }
+          if (e.key === "Tab") {
+            const focusableElements = modal.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        }
+      });
+
+      // Copy button logic for terminal status card
+      const copyBtn = document.getElementById("copyBtn");
+      const cmdText = document.getElementById("cmdText");
+
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(cmdText.textContent.trim());
+          copyBtn.classList.add("text-blue-400");
+          setTimeout(() => {
+            copyBtn.classList.remove("text-blue-400");
+          }, 1500);
+        } catch (err) {
+          console.error("Failed to copy text: ", err);
+        }
+      });
+
+      // Character swing script
+      const character = document.getElementById("character");
+      const rope = document.getElementById("rope");
+
+      const physics = {
+        ropeLength: 450,
+        damping: 0.993,
+        maxSwingAngle: 45,
+        swingSpeed: 0.005,
+        mouseSensitivity: 0.3,
+      };
+
+      let state = {
+        isDragging: false,
+        startX: 0,
+        rotation: 0,
+        velocity: 0,
+        lastTime: 0,
+        autoSwing: true,
+        swingPhase: 0,
+      };
+
+      function updateRope() {
+        const bend = Math.sin((state.rotation * Math.PI) / 180) * 15;
+        rope.style.transform = `translateX(${-1.5 + bend}px)`;
+      }
+
+      function autoSwing() {
+        if (!state.isDragging) {
+          state.swingPhase += physics.swingSpeed;
+          state.rotation = physics.maxSwingAngle * Math.sin(state.swingPhase);
+          character.style.transform = `translate(-50%, 0) rotate(${state.rotation}deg)`;
+        }
+        updateRope();
+        requestAnimationFrame(autoSwing);
+      }
+
+      character.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        state.isDragging = true;
+        state.autoSwing = false;
+        state.startX = e.clientX;
+        document.body.style.cursor = "grabbing";
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        if (!state.isDragging) return;
+
+        const deltaX = (e.clientX - state.startX) * physics.mouseSensitivity;
+        state.rotation = Math.max(
+          -physics.maxSwingAngle,
+          Math.min(physics.maxSwingAngle, deltaX)
+        );
+        state.velocity = deltaX * 0.1;
+        state.startX = e.clientX;
+
+        character.style.transform = `translate(-50%, 0) rotate(${state.rotation}deg)`;
+        updateRope();
+      });
+
+      document.addEventListener("mouseup", () => {
+        if (!state.isDragging) return;
+
+        state.isDragging = false;
+        document.body.style.cursor = "grab";
+        state.autoSwing = true;
+        state.swingPhase = Math.asin(state.rotation / physics.maxSwingAngle);
+      });
+
+      character.ondragstart = () => false;
+
+      window.addEventListener("load", () => {
+        updateRope();
+        autoSwing();
+      });
+      window.addEventListener("resize", updateRope);
+    </script>
+  </body>
+</html>
